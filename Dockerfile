@@ -1,4 +1,4 @@
-# ✅ Official Playwright image with Chromium
+# ✅ Official Playwright Python image
 FROM mcr.microsoft.com/playwright/python:v1.43.1-jammy
 
 # 📁 Set working directory
@@ -7,10 +7,14 @@ WORKDIR /app
 # 🧠 Copy project files
 COPY . .
 
-# 📦 Install Python dependencies
+# 📦 Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ❌ DO NOT repeat playwright install chromium (already installed in image)
+# 🧱 Install Chromium + cache it to a known location
+RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install chromium
 
-# 🚀 Start with app.py (Flask)
+# ✅ Set env var so runtime knows where to find it
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# ✅ Run your Flask app (change to app.py if that’s the main file)
 CMD ["python", "app.py"]
