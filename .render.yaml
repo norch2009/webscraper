@@ -1,7 +1,10 @@
 services:
-- type: worker
-  name: poe-scraper
-  env: python
-  buildCommand: pip install -r requirements.txt
-  startCommand: bash start.sh
-  plan: free
+  - type: web
+    name: webscraper
+    env: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: 3000
