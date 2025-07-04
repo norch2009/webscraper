@@ -1,0 +1,12 @@
+entrypoint = "poe_scraper.py"
+modules = ["python-3.11"]
+
+[interpreter]
+command = ["python3", "-u"]
+
+[deployment]
+run = ["python3", "poe_scraper.py"]
+deploymentTarget = "cloudrun"
+
+[nix]
+packages = ["gitFull", "playwright-driver"]
