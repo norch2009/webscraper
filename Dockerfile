@@ -1,11 +1,14 @@
 FROM python:3.11-slim
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     curl \
     unzip \
+    build-essential \
+    gcc \
+    g++ \
     libglib2.0-0 \
     libnss3 \
     libgdk-pixbuf2.0-0 \
@@ -22,18 +25,18 @@ RUN apt-get update && apt-get install -y \
     libgbm-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create working directory
+# Create app directory
 WORKDIR /app
 
-# Copy files
+# Copy project files
 COPY . .
 
-# Install Python packages
+# Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Install Playwright + Chromium
 RUN playwright install --with-deps chromium
 
-# Start script
+# Run script by default
 CMD ["python", "poe_scraper.py"]
