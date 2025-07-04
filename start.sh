@@ -1,2 +1,3 @@
 #!/bin/bash
-python3 poe_scraper.py
+playwright install --with-deps chromium
+python app.py
