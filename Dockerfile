@@ -1,5 +1,5 @@
 # ✅ Official Playwright Python image
-FROM mcr.microsoft.com/playwright/python:v1.43.1-jammy
+FROM mcr.microsoft.com/playwright/python:v1.43.0-jammy
 
 # 📁 Set working directory
 WORKDIR /app
