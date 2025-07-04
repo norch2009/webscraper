@@ -1,9 +1,10 @@
+import os
 from flask import Flask, request
 from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 
-# 🔑 Ilagay dito ang Poe p-b cookie mo
+# 🔑 Poe p-b cookie
 PB_COOKIE = "9XW1lCrtQcjFMf4zyeWm8Q%3D%3D"
 
 @app.route("/", methods=["GET"])
@@ -20,7 +21,7 @@ def ask_route():
 
 def ask_poe(prompt):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
         context = browser.new_context()
         context.add_cookies([{
             'name': 'p-b',
@@ -34,14 +35,17 @@ def ask_poe(prompt):
 
         page = context.new_page()
         page.goto("https://poe.com/GPT-4o", wait_until="networkidle")
-
         page.wait_for_selector("textarea")
         page.fill("textarea", prompt)
         page.keyboard.press("Enter")
-
         page.wait_for_selector(".Message_botMessageBubble", timeout=20000)
-        result = page.query_selector(".Message_botMessageBubble")
 
+        result = page.query_selector(".Message_botMessageBubble")
         text = result.inner_text() if result else "⚠️ No response found."
         browser.close()
         return text
+
+# ✅ Required for Render to detect PORT
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 3000))
+    app.run(host="0.0.0.0", port=port)
