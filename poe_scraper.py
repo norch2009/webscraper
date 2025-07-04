@@ -1,28 +1,27 @@
 from flask import Flask, request
 from playwright.sync_api import sync_playwright
 
-# 🛑 Palitan mo ito ng Poe p-b cookie mo
-PB_COOKIE = "9XW1lCrtQcjFMf4zyeWm8Q%3D%3D"
-
 app = Flask(__name__)
+
+# 🔑 Ilagay dito ang Poe p-b cookie mo
+PB_COOKIE = "9XW1lCrtQcjFMf4zyeWm8Q%3D%3D"
 
 @app.route("/", methods=["GET"])
 def ask_route():
-    question = request.args.get("ask", "")
+    question = request.args.get("ask")
     if not question:
-        return "❌ Missing `ask` query parameter.", 400
+        return "🤖 Poe GPT-4o Scraper is running. Use '?ask=your-question' to ask."
 
     try:
-        answer = ask_poe(question)
-        return answer
+        response = ask_poe(question)
+        return response
     except Exception as e:
-        return f"❌ Error: {e}", 500
+        return f"❌ Error: {str(e)}", 500
 
-def ask_poe(question: str):
+def ask_poe(prompt):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context()
-
         context.add_cookies([{
             'name': 'p-b',
             'value': PB_COOKIE,
@@ -35,16 +34,14 @@ def ask_poe(question: str):
 
         page = context.new_page()
         page.goto("https://poe.com/GPT-4o", wait_until="networkidle")
+
         page.wait_for_selector("textarea")
-        page.fill("textarea", question)
+        page.fill("textarea", prompt)
         page.keyboard.press("Enter")
+
         page.wait_for_selector(".Message_botMessageBubble", timeout=20000)
+        result = page.query_selector(".Message_botMessageBubble")
 
-        response = page.query_selector(".Message_botMessageBubble")
-        answer = response.inner_text() if response else "❌ No response found."
-
+        text = result.inner_text() if result else "⚠️ No response found."
         browser.close()
-        return answer
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
+        return text
